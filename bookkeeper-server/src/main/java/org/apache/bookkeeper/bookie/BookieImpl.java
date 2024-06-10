@@ -140,7 +140,7 @@ public class BookieImpl implements Bookie {
             }
         }
     }
-
+    @VisibleForTesting
     public static void checkDirectoryStructure(File dir) throws IOException {
         if (!dir.exists()) {
             File parent = dir.getParentFile();
