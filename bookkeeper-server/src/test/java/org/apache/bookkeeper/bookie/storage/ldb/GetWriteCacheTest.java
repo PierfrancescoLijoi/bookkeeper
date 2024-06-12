@@ -3,7 +3,6 @@ package org.apache.bookkeeper.bookie.storage.ldb;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
