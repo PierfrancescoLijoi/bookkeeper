@@ -322,19 +322,12 @@
     <profile>
       <id>Pitest</id>
 
-      <dependencies>
-        <dependency>
-          <groupId>org.pitest</groupId>
-          <artifactId>pitest-maven</artifactId>
-          <version>LATEST</version>
-        </dependency>
-      </dependencies>
-
       <build>
         <plugins>
           <plugin>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
+            <version>1.15.3</version> <!-- Sostituito 'LATEST' con una versione specifica -->
             <executions>
               <execution>
                 <goals>
@@ -349,11 +342,26 @@
                 <param>org.apache.bookkeeper.bookie.storage.ldb.WriteCache</param>
                 <param>org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger</param>
               </targetClasses>
+              <jvmArgs>
+                <jvmArg>-Xmx4096m</jvmArg> <!-- Aumenta la memoria heap se necessario -->
+                <jvmArg>-XX:MaxPermSize=512m</jvmArg>
+              </jvmArgs>
             </configuration>
           </plugin>
         </plugins>
       </build>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>1.15.3</version> <!-- Usa la stessa versione usata nel plugin -->
+        </dependency>
+      </dependencies>
     </profile>
+    <!-- FINE Pit profile -->
+
+
     <profile>
       <id>vertx-http-server</id>
       <dependencies>
