@@ -26,7 +26,6 @@
   <name>Apache BookKeeper :: Server</name>
   <properties>
     <ba-dua.version>0.6.0</ba-dua.version>
-    <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=${project.build.directory}/badua.ser</argLine>
   </properties>
   <dependencies>
     <dependency>
@@ -208,7 +207,13 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
+    <!-- Deletete interaction with badua -->
+    <!-- needed by ZooKeeper server tests utilities -->
+    <!--
+     <groupId>org.junit.jupiter</groupId>
+     <artifactId>junit-jupiter-api</artifactId>
+     <scope>test</scope>
+     -->
     <dependency>
       <groupId>org.apache.bookkeeper.stats</groupId>
       <artifactId>prometheus-metrics-provider</artifactId>
@@ -288,7 +293,23 @@
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
       </plugin>
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+       <configuration>
+         <trimStackTrace>false</trimStackTrace>
+         <properties>
+           <property>
+             <name>listener</name>
+             <value>org.apache.bookkeeper.common.testing.util.TimedOutTestsListener</value>
+           </property>
+         </properties>
+       </configuration>
 
+   </plugin>
+    -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -314,6 +335,14 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>9</source>
+          <target>9</target>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <profiles>
@@ -322,12 +351,19 @@
     <profile>
       <id>Pitest</id>
 
+      <dependencies>
+        <dependency>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>LATEST</version>
+        </dependency>
+      </dependencies>
+
       <build>
         <plugins>
           <plugin>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
-            <version>1.15.3</version> <!-- Sostituito 'LATEST' con una versione specifica -->
             <executions>
               <execution>
                 <goals>
@@ -342,26 +378,11 @@
                 <param>org.apache.bookkeeper.bookie.storage.ldb.WriteCache</param>
                 <param>org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger</param>
               </targetClasses>
-              <jvmArgs>
-                <jvmArg>-Xmx4096m</jvmArg> <!-- Aumenta la memoria heap se necessario -->
-                <jvmArg>-XX:MaxPermSize=512m</jvmArg>
-              </jvmArgs>
             </configuration>
           </plugin>
         </plugins>
       </build>
-
-      <dependencies>
-        <dependency>
-          <groupId>org.pitest</groupId>
-          <artifactId>pitest-maven</artifactId>
-          <version>1.15.3</version> <!-- Usa la stessa versione usata nel plugin -->
-        </dependency>
-      </dependencies>
     </profile>
-    <!-- FINE Pit profile -->
-
-
     <profile>
       <id>vertx-http-server</id>
       <dependencies>
@@ -425,6 +446,9 @@
         <activeByDefault>false</activeByDefault>
       </activation>
 
+      <properties>
+        <argLine>-javaagent:target/dependency/ba-dua-agent-rt-${ba-dua.version}-all.jar -Doutput.file=target/badua.ser</argLine>
+      </properties>
       <!-- Needed for generate the report -->
       <dependencies>
         <dependency>

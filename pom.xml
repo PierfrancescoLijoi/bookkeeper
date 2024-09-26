@@ -56,7 +56,6 @@
     <module>bookkeeper-common</module>
     <module>bookkeeper-common-allocator</module>
     <module>stats</module>
-
     <module>bookkeeper-proto</module>
     <module>bookkeeper-server</module>
     <module>bookkeeper-benchmark</module>
@@ -116,6 +115,7 @@
     <test.additional.args />
 
     <!-- SONAR CLOUD-->
+    <sonar.organization>martorelliluca</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     <!-- JACOCO -->
@@ -218,6 +218,7 @@
     <servlet-api.version>4.0.0</servlet-api.version>
     <rxjava.version>3.0.1</rxjava.version>
     <otel.version>1.26.0</otel.version>
+    <maven-failsafe-plugin.version>3.0.0-M6</maven-failsafe-plugin.version>
     <UBUNTU_MIRROR>http://archive.ubuntu.com/ubuntu/</UBUNTU_MIRROR>
     <UBUNTU_SECURITY_MIRROR>http://security.ubuntu.com/ubuntu/</UBUNTU_SECURITY_MIRROR>
   </properties>
@@ -879,14 +880,19 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
-          <configuration>
-            <argLine>-Xmx2048m -XX:MaxPermSize=512m</argLine>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>com.github.maven-nar</groupId>

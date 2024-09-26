@@ -28,11 +28,10 @@ public class GetWriteCacheTest {
     @Parameterized.Parameters
     public static Collection<Object[]> parameters() {
         return Arrays.asList(new Object[][] {
-                // isValidLedgerId,       isValidEntryId,    isExceptionExpected
-                { true,                 true,               false },
-                { true,                 false,              true },
-                { false,                true,               true },
-                { false,                false,              true }
+                { Boolean.TRUE, Boolean.TRUE, Boolean.FALSE },
+                { Boolean.TRUE, Boolean.FALSE, Boolean.TRUE },
+                { Boolean.FALSE, Boolean.TRUE, Boolean.TRUE },
+                { Boolean.FALSE, Boolean.FALSE, Boolean.TRUE }
         });
     }
 
