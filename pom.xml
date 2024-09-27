@@ -114,9 +114,7 @@
     <src.dir>src/main/java</src.dir>
     <test.additional.args />
 
-    <!-- SONAR CLOUD-->
-    <sonar.organization>martorelliluca</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
 
     <!-- JACOCO -->
     <sonar.coverage.jacoco.xmlReportPaths>../tests/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
