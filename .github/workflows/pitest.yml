@@ -1,4 +1,4 @@
-nname: Pitest
+name: PitMutationTesting
 on:
   push:
     branches:
