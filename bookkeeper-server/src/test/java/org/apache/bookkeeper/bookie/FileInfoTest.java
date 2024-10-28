@@ -57,7 +57,7 @@ public class FileInfoTest {
 
     void setupTestParameters(ParamFile fileType, ParamSize sizeType) throws IOException {
         File tempFile = createTemporaryFile("testFileInfo");
-        this.testContent = "testFileInfo1";  // Contenuto di test
+        this.testContent = "ciao, come va?";  // Contenuto di test
         String masterkey = "";
         this.originalFileInfo = new FileInfo(tempFile, masterkey.getBytes(), 0);
 
