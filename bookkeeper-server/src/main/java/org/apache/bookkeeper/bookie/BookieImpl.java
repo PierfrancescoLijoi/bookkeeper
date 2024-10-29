@@ -97,7 +97,7 @@ public class BookieImpl implements Bookie {
     final SyncThread syncThread;
     final LedgerStorage ledgerStorage;
     final RegistrationManager registrationManager;
-    final List<Journal> journals;
+    public final List<Journal> journals;
 
     final HandleFactory handles;
     final boolean entryLogPerLedgerEnabled;

@@ -39,8 +39,8 @@ public class FileInfoIntegrationTest {
         return Arrays.asList(new Object[][]{
                 {ParamFile.SAME, ParamSize.MAX},
                 {ParamFile.FC_NULL, ParamSize.MAX},
-                {ParamFile.INVALID, ParamSize.MAX}, // New parameter for closed file
-                {ParamFile.VALID, ParamSize.MAX}   // New parameter for empty file
+                {ParamFile.INVALID, ParamSize.MAX},
+                {ParamFile.VALID, ParamSize.MAX}
         });
     }
 

@@ -1,8 +1,9 @@
-package org.apache.bookkeeper.bookie.storage.ldb;
+package org.apache.bookkeeper.bookie.storage;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import org.apache.bookkeeper.bookie.storage.ldb.WriteCache;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
