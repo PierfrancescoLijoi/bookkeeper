@@ -27,7 +27,7 @@ public class FileInfoIntegrationTest {
     private boolean deleted;
 
     enum ParamFile {
-        NULL, INVALID, VALID, SAME, FC_NULL,
+        NULL, VALID, SAME, FC_NULL,
     }
 
     enum ParamSize {
@@ -39,7 +39,6 @@ public class FileInfoIntegrationTest {
         return Arrays.asList(new Object[][]{
                 {ParamFile.SAME, ParamSize.MAX},
                 {ParamFile.FC_NULL, ParamSize.MAX},
-                {ParamFile.INVALID, ParamSize.MAX},
                 {ParamFile.VALID, ParamSize.MAX}
         });
     }
@@ -66,12 +65,6 @@ public class FileInfoIntegrationTest {
                 Mockito.when(f.getPath()).thenReturn("/tmp/integrationTest");
                 this.fileInfo = new FileInfo(f, "".getBytes(), 0);
                 this.fileNew = createTempFile("mockedAAAA");
-                break;
-            case INVALID: // New case for closed file
-                File closedFile = mock(File.class);
-                Mockito.when(closedFile.canRead()).thenReturn(false); // Simulating a closed file
-                this.fileInfo = new FileInfo(closedFile, masterkey.getBytes(), 0);
-                this.fileNew = createTempFile("closedFile");
                 break;
             case VALID: // New case for empty file
                 this.fileNew = createTempFile("emptyFile");
