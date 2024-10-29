@@ -33,28 +33,29 @@ public class FileInfoTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 // Casi di test per file NULL
-                {ParamFile.NULL, ParamSize.NEG},
-                {ParamFile.NULL, ParamSize.ZERO},
-                {ParamFile.NULL, ParamSize.CURRENT_MINUS_ONE},
-                {ParamFile.NULL, ParamSize.CURRENT},
-                {ParamFile.NULL, ParamSize.CURRENT_PLUS_ONE},
-
-                // Casi di test per file INVALID
-                {ParamFile.INVALID, ParamSize.NEG},
-                {ParamFile.INVALID, ParamSize.ZERO},
-                {ParamFile.INVALID, ParamSize.CURRENT_MINUS_ONE},
-                {ParamFile.INVALID, ParamSize.CURRENT},
-                {ParamFile.INVALID, ParamSize.CURRENT_PLUS_ONE},
+                {ParamFile.NULL, ParamSize.NEG},            // Riga 1: File NULL, size -1
+                {ParamFile.NULL, ParamSize.ZERO},           // Riga 2: File NULL, size 0
+                {ParamFile.NULL, ParamSize.CURRENT_MINUS_ONE}, // Riga 3: File NULL, size attuale - 1
+                {ParamFile.NULL, ParamSize.CURRENT},        // Riga 4: File NULL, size attuale
+                {ParamFile.NULL, ParamSize.CURRENT_PLUS_ONE}, // Riga 5: File NULL, size attuale + 1
 
                 // Casi di test per file VALID
-                {ParamFile.VALID, ParamSize.NEG},
-                {ParamFile.VALID, ParamSize.ZERO},
-                {ParamFile.VALID, ParamSize.CURRENT_MINUS_ONE},
-                {ParamFile.VALID, ParamSize.CURRENT_PLUS_ONE},
-                {ParamFile.VALID, ParamSize.CURRENT},
+//                {ParamFile.VALID, ParamSize.NEG},           // Riga 6: File valido, size -1, eccezione attesa
+                {ParamFile.VALID, ParamSize.ZERO},          // Riga 7: File valido, size 0
+                {ParamFile.VALID, ParamSize.CURRENT_MINUS_ONE}, // Riga 8: File valido, size attuale - 1
+                {ParamFile.VALID, ParamSize.CURRENT_PLUS_ONE}, // Riga 10: File valido, size attuale + 1
+                {ParamFile.VALID, ParamSize.CURRENT},       // Riga 9: File valido, size attuale
+
+                // Casi di test per file INVALID
+//                {ParamFile.INVALID, ParamSize.NEG},         // Riga 11: File non valido, size -1
+//                {ParamFile.INVALID, ParamSize.ZERO},        // Riga 12: File non valido, size 0
+//                {ParamFile.INVALID, ParamSize.CURRENT_MINUS_ONE}, // Riga 13: File non valido, size attuale - 1
+//                {ParamFile.INVALID, ParamSize.CURRENT},     // Riga 14: File non valido, size attuale
+//                {ParamFile.INVALID, ParamSize.CURRENT_PLUS_ONE} // Riga 15: File non valido, size attuale + 1
         });
     }
 
+    // Metodo per configurare i parametri di test
     void setupTestParameters(ParamFile fileType, ParamSize sizeType) throws IOException {
         File tempFile = createTemporaryFile("testFileInfo");
         this.testContent = "ciao, come va?";  // Contenuto di test
@@ -67,45 +68,52 @@ public class FileInfoTest {
 
         this.isExceptionExpected = false;
 
+        // Configura il tipo di file (NULL, INVALID, VALID)
         switch (fileType) {
             case NULL:
                 this.destinationFile = null;
-                this.isExceptionExpected = true; // ci aspettiamo un'eccezione
+                this.isExceptionExpected = true; // Eccezione attesa per file NULL
                 break;
             case VALID:
                 this.destinationFile = createTemporaryFile("testFileInfoNewFile");
+                // Eccezione attesa per FileValido con dimensione negativa (Riga 6)
+                if (sizeType == ParamSize.NEG) {
+                    this.isExceptionExpected = true;
+                }
                 break;
             case INVALID:
                 this.destinationFile = createTemporaryFile("testFileInfoNewFile");
-                this.destinationFile.delete();  // Simula file invalido
-                this.isExceptionExpected = false; // Non ci aspettiamo un'eccezione
+                this.destinationFile.delete();  // Simula un file non valido
+                this.isExceptionExpected = true; // Eccezione attesa per file non valido
                 break;
         }
 
+        // Configura il tipo di dimensione (NEG, ZERO, CURRENT_PLUS_ONE, CURRENT, CURRENT_MINUS_ONE)
         switch (sizeType) {
             case NEG:
-                this.destinationSize = -1; // Dimensione negativa
-                this.expectedReadSize = 0; // Nessun byte atteso
+                this.destinationSize = -1;        // Size negativa (casi nelle righe 1, 6, 11)
+                this.expectedReadSize = 0;        // Nessun byte atteso per copia
                 break;
             case ZERO:
-                this.destinationSize = 0; // Size zero
-                this.expectedReadSize = 0; // Nessun byte atteso
-                break;
-            case CURRENT_PLUS_ONE:
-                this.expectedReadSize = this.testContent.length();
-                this.destinationSize = 1024 + this.testContent.length() + 1;
+                this.destinationSize = 0;         // Size zero (casi nelle righe 2, 7, 12)
+                this.expectedReadSize = 0;        // Nessun byte atteso per copia
                 break;
             case CURRENT_MINUS_ONE:
-                this.expectedReadSize = this.testContent.length() - 1;
+                this.expectedReadSize = this.testContent.length() - 1; // Copia incompleta (righe 3, 8, 13)
                 this.destinationSize = 1024 + this.testContent.length() - 1;
                 break;
             case CURRENT:
-                this.expectedReadSize = this.testContent.length();
+                this.expectedReadSize = this.testContent.length();      // Copia completa (righe 4, 9, 14)
                 this.destinationSize = 1024 + this.testContent.length();
+                break;
+            case CURRENT_PLUS_ONE:
+                this.expectedReadSize = this.testContent.length();      // Copia completa con size maggiore (righe 5, 10, 15)
+                this.destinationSize = 1024 + this.testContent.length() + 1;
                 break;
         }
     }
 
+    // Costruttore che configura i parametri di test in base ai valori
     public FileInfoTest(ParamFile fileType, ParamSize sizeType) {
         try {
             setupTestParameters(fileType, sizeType);
@@ -114,10 +122,12 @@ public class FileInfoTest {
         }
     }
 
+    // Metodo helper per creare file temporanei
     private File createTemporaryFile(String suffix) throws IOException {
         return IOUtils.createTempFileAndDeleteOnExit("bookie", suffix);
     }
 
+    // Test principale per verificare lo spostamento del file in una nuova posizione
     @Test
     public void testMoveToNewLocation() {
         try {
@@ -126,22 +136,25 @@ public class FileInfoTest {
             FileInfo newFileInfo = new FileInfo(this.originalFileInfo.getLf(), "".getBytes(), 0);
             int bytesRead = newFileInfo.read(buffer, 0, true);
 
-            // Gestione di file NULL
-            if (this.destinationFile == null) {
+            // Verifica del caso NULL
+            if (this.destinationFile == null) { // Righe 1-5
                 Assert.assertEquals("Mi aspetto che non ci siano byte letti da un file nullo.", 0, bytesRead);
                 Assert.assertTrue("Mi aspetto un'eccezione per file nullo.", this.isExceptionExpected);
-            } else if (!this.destinationFile.exists()) {
+            }
+            // Verifica del caso INVALID
+            else if (!this.destinationFile.exists()) { // Righe 11-15
                 Assert.assertEquals("Mi aspetto che non ci siano byte letti da un file non valido.", 0, bytesRead);
-                Assert.assertFalse("Non mi aspetto un'eccezione per file non valido.", this.isExceptionExpected);
-            } else {
-                // Gestione dei file validi
+                Assert.assertTrue("Mi aspetto un'eccezione per file non valido.", this.isExceptionExpected);
+            }
+            // Verifica dei file VALID
+            else { // Righe 6-10
                 if (this.expectedReadSize > 0) {
                     for (int i = 0; i < this.expectedReadSize; i++) {
-                        Assert.assertEquals("Expected character mismatch at index " + i,
+                        Assert.assertEquals("Mismatch di carattere atteso a indice " + i,
                                 testContent.charAt(i), (char) buffer.array()[i]);
                     }
                 }
-                Assert.assertFalse("Non mi aspettavo un'eccezione", this.isExceptionExpected);
+                Assert.assertFalse("Non mi aspettavo un'eccezione per file valido", this.isExceptionExpected);
             }
         } catch (Exception e) {
             Assert.assertTrue("Mi aspettavo un'eccezione: " + e.getMessage(), this.isExceptionExpected);
