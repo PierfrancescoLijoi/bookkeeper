@@ -375,9 +375,13 @@
             <configuration>
               <threads>4</threads>
               <targetClasses>
-                <param>org.apache.bookkeeper.bookie.storage.ldb.WriteCache</param>
-                <param>org.apache.bookkeeper.util.AvailabilityOfEntriesOfLedger</param>
+                <param>org.apache.bookkeeper.bookie.FileInfo</param>
               </targetClasses>
+              <targetTests>
+                <param>org.apache.bookkeeper.bookie.FileInfoTest</param>
+                <param>org.apache.bookkeeper.bookie.FileInfoIntegrationTest</param>
+                <param>org.apache.bookkeeper.bookie.FileInfoBaduaTest</param>
+              </targetTests>
             </configuration>
           </plugin>
         </plugins>
