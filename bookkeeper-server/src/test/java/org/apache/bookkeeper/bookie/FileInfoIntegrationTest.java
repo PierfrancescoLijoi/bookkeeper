@@ -1,142 +1,65 @@
 package org.apache.bookkeeper.bookie;
 
-import org.apache.bookkeeper.util.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.mockito.Mockito;
-
-import java.io.File;
-import java.io.IOException;
+import org.junit.jupiter.api.*;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collection;
+import java.nio.file.Files;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Parameterized.class)
 public class FileInfoIntegrationTest {
 
+    private File originalFile;
+    private File targetFile;
     private FileInfo fileInfo;
-    private File fileNew;
-    private boolean exception;
-    private String result;
-    private long size;
-    private int sizeExpected;
-    private boolean deleted;
+    private static final byte[] MASTER_KEY = "testMasterKey".getBytes();
 
-    enum ParamFile {
-        NULL, VALID, SAME, FC_NULL,
-    }
+    @BeforeEach
+    public void setUp() throws IOException {
+        // Crea file temporanei per il test
+        originalFile = File.createTempFile("testFile", ".idx");
+        targetFile = new File(originalFile.getParentFile(), "movedTestFile.idx");
 
-    enum ParamSize {
-        MAX, MIN
-    }
+        // Inizializza l'oggetto FileInfo
+        fileInfo = new FileInfo(originalFile, MASTER_KEY, FileInfo.CURRENT_HEADER_VERSION);
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {ParamFile.SAME, ParamSize.MAX},
-                {ParamFile.FC_NULL, ParamSize.MAX},
-                {ParamFile.VALID, ParamSize.MAX}
-        });
-    }
-
-    void configure(ParamFile fileType, ParamSize sizeType) throws IOException {
-        File fl = createTempFile("testFileInfo");
-        this.result = "mocked";
-        String masterkey = "";
-        this.fileInfo = new FileInfo(fl, masterkey.getBytes(), 0);
-
-        this.deleted = false;
-        this.exception = false;
-
-        switch (fileType) {
-            case SAME:
-                this.fileNew = fl;
-                ByteBuffer bb[] = new ByteBuffer[1];
-                bb[0] = ByteBuffer.wrap(this.result.getBytes());
-                this.fileInfo.write(bb, 0);
-                break;
-            case FC_NULL:
-                File f = mock(File.class);
-                Mockito.when(f.delete()).thenReturn(true);
-                Mockito.when(f.getPath()).thenReturn("/tmp/integrationTest");
-                this.fileInfo = new FileInfo(f, "".getBytes(), 0);
-                this.fileNew = createTempFile("mockedAAAA");
-                break;
-            case VALID: // New case for empty file
-                this.fileNew = createTempFile("emptyFile");
-                break;
-        }
-
-        switch (sizeType) {
-            case MAX:
-                this.size = Long.MAX_VALUE;
-                this.sizeExpected = this.result.length();
-                break;
-            case MIN:
-                this.size = 0; // Setting to zero for minimum size case
-                this.sizeExpected = 0; // Expect no content
-                break;
-        }
-    }
-
-    public FileInfoIntegrationTest(ParamFile fileType, ParamSize sizeType) {
-        try {
-            configure(fileType, sizeType);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private File createTempFile(String suffix) throws IOException {
-        return IOUtils.createTempFileAndDeleteOnExit("bookie", suffix);
+        // Scrive alcuni dati nel file per verificarne la copia
+        ByteBuffer buffer = ByteBuffer.wrap("TestData".getBytes());
+        fileInfo.write(new ByteBuffer[]{buffer}, 0);
+        fileInfo.flushHeader(); // Flush per assicurarsi che i dati siano scritti
     }
 
     @Test
-    public void testMoveToNewLocation() {
-        try {
-            this.fileInfo.moveToNewLocation(this.fileNew, this.size);
-            Assert.assertEquals(this.deleted, fileInfo.isDeleted());
-        } catch (Exception e) {
-            Assert.assertTrue("mi aspettavo true " + e.getMessage(), this.exception);
+    public void testMoveToNewLocation() throws IOException {
+        // Verifica che il file di origine esista
+        assertTrue(originalFile.exists(), "Il file originale dovrebbe esistere");
+
+        // Esegue il metodo moveToNewLocation
+        fileInfo.moveToNewLocation(targetFile, Long.MAX_VALUE);
+
+        // Verifica che il file di origine sia stato eliminato
+        assertFalse(originalFile.exists(), "Il file originale dovrebbe essere eliminato");
+
+        // Verifica che il file di destinazione esista
+        assertTrue(targetFile.exists(), "Il file di destinazione dovrebbe esistere");
+
+        // Verifica che i dati siano stati copiati correttamente
+        byte[] targetData = Files.readAllBytes(targetFile.toPath());
+        String content = new String(targetData).trim();
+        assertTrue(content.contains("TestData"), "Il contenuto del file di destinazione dovrebbe includere 'TestData'");
+
+        // Verifica che il nuovo file sia stato associato a fileInfo
+        assertEquals(targetFile, fileInfo.getLf(), "Il file info dovrebbe ora puntare al file di destinazione");
+    }
+
+    @AfterEach
+    public void tearDown() throws IOException {
+        // Pulisce i file temporanei
+        if (originalFile.exists()) {
+            originalFile.delete();
+        }
+        if (targetFile.exists()) {
+            targetFile.delete();
         }
     }
-
-    @Test
-    public void testMoveToNewLocationWithMockito1() throws IOException {
-        // Create a mock of FileInfo
-        FileInfo mockFileInfo = mock(FileInfo.class);
-        File mockNewFile = mock(File.class);
-
-        // Simulate the behavior of moveToNewLocation
-        doNothing().when(mockFileInfo).moveToNewLocation(any(File.class), anyLong());
-
-        // Call the method
-        mockFileInfo.moveToNewLocation(mockNewFile, 1024L);
-
-        // Verify that moveToNewLocation was called with the correct parameters
-        verify(mockFileInfo, times(1)).moveToNewLocation(mockNewFile, 1024L);
-    }
-
-    @Test
-    public void testMoveToNewLocationDoesNotThrowIOExceptionWhenRenamingToExistingFile() throws IOException {
-
-        File newFile = createTempFile("newFileForTesting");
-        newFile.createNewFile();
-
-        try {
-            this.fileInfo.moveToNewLocation(newFile, this.size);
-        } catch (IOException e) {
-            // In this case we do not expect an IOException to be thrown
-            Assert.fail("Non ci si aspettava un'eccezione IOException, ma è stata sollevata: " + e.getMessage());
-        }
-
-        // Verify that the destination file was not created, because it already existed
-        Assert.assertTrue("Il file di destinazione non dovrebbe essere stato rinominato.", newFile.exists());
-    }
-
-
 }
