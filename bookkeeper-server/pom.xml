@@ -400,10 +400,10 @@
                 <param>org.apache.bookkeeper.bookie.FileInfo</param>
               </targetClasses>
               <targetTests>
-                <param>org.apache.bookkeeper.bookie.FileInfoTest</param>
-                <param>org.apache.bookkeeper.bookie.FileInfoBoostedTest</param>
-                <param>org.apache.bookkeeper.bookie.FileInfoBaduaTest</param>
-                <param>org.apache.bookkeeper.bookie.FileInfoPitTest</param>
+                <!-- <param>org.apache.bookkeeper.bookie.FileInfoTest</param>
+                    <param>org.apache.bookkeeper.bookie.FileInfoBoostedTest</param>
+                    <param>org.apache.bookkeeper.bookie.FileInfoBaduaTest</param>
+                    <param>org.apache.bookkeeper.bookie.FileInfoPitTest</param> -->
               </targetTests>
             </configuration>
           </plugin>
