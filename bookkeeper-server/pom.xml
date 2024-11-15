@@ -397,54 +397,61 @@
             <configuration>
               <threads>4</threads>
               <targetClasses>
-                <param>org.apache.bookkeeper.bookie.FileInfo</param>
+                <!-- <param>org.apache.bookkeeper.bookie.FileInfo</param>-->
+                <param>org.apache.bookkeeper.bookie.InterleavedLedgerStorage</param>
               </targetClasses>
               <targetTests>
                 <!-- <param>org.apache.bookkeeper.bookie.FileInfoTest</param>
-                    <param>org.apache.bookkeeper.bookie.FileInfoBoostedTest</param>
-                    <param>org.apache.bookkeeper.bookie.FileInfoBaduaTest</param>
-                    <param>org.apache.bookkeeper.bookie.FileInfoPitTest</param> -->
-              </targetTests>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>vertx-http-server</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.apache.bookkeeper.http</groupId>
-          <artifactId>vertx-http-server</artifactId>
-          <version>${project.parent.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>tls-certs</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>Generate Self-Signed Certificates</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <workingDirectory>${basedir}/src/test/resources</workingDirectory>
-                  <executable>${basedir}/src/test/resources/generateKeysAndCerts.sh</executable>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <!-- test profiles -->
+                 <param>org.apache.bookkeeper.bookie.FileInfoBoostedTest</param>
+                 <param>org.apache.bookkeeper.bookie.FileInfoBaduaTest</param>
+                 <param>org.apache.bookkeeper.bookie.FileInfoPitTest</param>-->
+
+                 <param>org.apache.bookkeeper.bookie.InterleavedLedgerStorageTest</param>
+                 <param>org.apache.bookkeeper.bookie.InterleavedLedgerStorageBoostedTest</param>
+                 <param>org.apache.bookkeeper.bookie.InterleavedLedgerStorageBaduaTest</param>
+                 <param>org.apache.bookkeeper.bookie.InterleavedLedgerStoragePitTest</param>
+
+</targetTests>
+</configuration>
+</plugin>
+</plugins>
+</build>
+</profile>
+<profile>
+<id>vertx-http-server</id>
+<dependencies>
+<dependency>
+<groupId>org.apache.bookkeeper.http</groupId>
+<artifactId>vertx-http-server</artifactId>
+<version>${project.parent.version}</version>
+</dependency>
+</dependencies>
+</profile>
+<profile>
+<id>tls-certs</id>
+<build>
+<plugins>
+<plugin>
+<groupId>org.codehaus.mojo</groupId>
+<artifactId>exec-maven-plugin</artifactId>
+<executions>
+<execution>
+  <id>Generate Self-Signed Certificates</id>
+  <phase>generate-test-resources</phase>
+  <goals>
+    <goal>exec</goal>
+  </goals>
+  <configuration>
+    <workingDirectory>${basedir}/src/test/resources</workingDirectory>
+    <executable>${basedir}/src/test/resources/generateKeysAndCerts.sh</executable>
+  </configuration>
+</execution>
+</executions>
+</plugin>
+</plugins>
+</build>
+</profile>
+<!-- test profiles -->
     <profile>
       <id>skipBookKeeperServerTests</id>
       <activation>
